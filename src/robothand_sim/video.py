@@ -20,10 +20,13 @@ class TwoPanelRecorder:
         self.title = title
         self.frames: list[np.ndarray] = []
         self.counter = ""  # e.g. "transferred 1/1"
-        try:
-            self.font = ImageFont.truetype("arial.ttf", 22)
-        except OSError:
-            self.font = ImageFont.load_default()
+        self.font = ImageFont.load_default()
+        for name in ("arial.ttf", "DejaVuSans.ttf", "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf"):
+            try:
+                self.font = ImageFont.truetype(name, 22)
+                break
+            except OSError:
+                continue
 
     def __call__(self, data: mujoco.MjData, phase: str) -> None:
         self.renderer.update_scene(data, camera="overview")

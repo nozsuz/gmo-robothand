@@ -28,14 +28,19 @@ PINCH = {
 # Joint change per millimetre of pad travel towards the other finger [rad/mm].
 THUMB_MIX = {"rh_A_THJ4": -1 / 89.1, "rh_A_THJ5": 0.478 / 89.1}
 INDEX_MIX = {"rh_A_FFJ3": 1 / 72.4}
+# Thumb pad shift across the leaf width (tweezer hinge axis) without closing travel: lets the
+# controller line the thumb up with the index pad so the squeeze does not roll the tool.
+THUMB_ACROSS_MIX = {"rh_A_THJ5": 1 / 86.5, "rh_A_THJ4": 0.609 / 86.5}
 
 OPEN_MM = -16.0  # both pads clear of the spring-opened leaves
 
 
-def hand_ctrl(thumb_mm: float = OPEN_MM, index_mm: float = OPEN_MM) -> dict[str, float]:
+def hand_ctrl(thumb_mm: float = OPEN_MM, index_mm: float = OPEN_MM, thumb_across_mm: float = 0.0) -> dict[str, float]:
     ctrl = {**STATIC, **PINCH}
     for name, k in THUMB_MIX.items():
         ctrl[name] += k * thumb_mm
+    for name, k in THUMB_ACROSS_MIX.items():
+        ctrl[name] += k * thumb_across_mm
     for name, k in INDEX_MIX.items():
         ctrl[name] += k * index_mm
     return ctrl

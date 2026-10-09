@@ -21,13 +21,16 @@ from robothand_sim.video import TwoPanelRecorder
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("-n", "--n-beans", type=int, default=1, help="beans to transfer")
+    ap.add_argument("--hand", default="shadow", choices=["shadow", "revo2"])
+    ap.add_argument("--tool-mount", default="holder", choices=["holder", "fingers"])
     ap.add_argument("--seed", type=int, default=0, help="bean layout seed")
     ap.add_argument("--speed", type=float, default=1.0, help="motion speed factor")
     ap.add_argument("--tip-friction", type=float, default=scene.SceneConfig.tip_friction)
     ap.add_argument("--video", type=Path, default=None, help="mp4 path (omit for no video)")
     args = ap.parse_args()
 
-    cfg = scene.SceneConfig(seed=args.seed, tip_friction=args.tip_friction, n_beans=max(5, args.n_beans))
+    cfg = scene.SceneConfig(seed=args.seed, tip_friction=args.tip_friction, n_beans=max(5, args.n_beans),
+                            hand=args.hand, tool_mount=args.tool_mount)
     model, info = scene.build(cfg)
     data = mujoco.MjData(model)
     params = replace(controller.TransferParams(), speed=args.speed)

@@ -46,7 +46,7 @@ zipfile.ZipFile(io.BytesIO(base64.b64decode(CODE))).extractall(ROOT)
 subprocess.run([sys.executable, "-m", "pip", "install", "-q", "mujoco=={mujoco}"], check=True)
 env = dict(os.environ, PYTHONPATH=f"{{ROOT}}/src:{{ROOT}}/scripts")
 print("cpu_count", os.cpu_count(), flush=True)
-subprocess.run([sys.executable, f"{{ROOT}}/scripts/fetch_menagerie.py"], check=True, env=env)
+subprocess.run([sys.executable, f"{{ROOT}}/scripts/fetch_models.py"], check=True, env=env)
 subprocess.run(
     [sys.executable, f"{{ROOT}}/scripts/evaluate.py", *ARGS, "--out-dir", "/kaggle/working"], check=True, env=env
 )

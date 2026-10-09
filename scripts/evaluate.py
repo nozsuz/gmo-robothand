@@ -31,7 +31,10 @@ from robothand_sim.paths import OUTPUT_DIR
 
 
 def run_one(job: dict) -> list[dict]:
-    cfg = scene.SceneConfig(seed=job["seed"], tip_friction=job["tip_friction"], n_beans=job["n_beans"])
+    cfg = scene.SceneConfig(
+        seed=job["seed"], tip_friction=job["tip_friction"], n_beans=job["n_beans"], tool_mount=job["tool_mount"],
+        hand=job["hand"],
+    )
     model, info = scene.build(cfg)
     data = mujoco.MjData(model)
     params = replace(controller.TransferParams(), speed=job["speed"], perception_noise=job["noise"])
@@ -49,6 +52,27 @@ def run_one(job: dict) -> list[dict]:
                 "lifted": int(tr.lifted),
                 "disturbed": tr.disturbed,
                 "seconds": round(tr.t_end - tr.t_start, 3),
+                "tool_mount": job["tool_mount"],
+                "hand": job["hand"],
+                "slip_mm": round(tr.slip_mm, 2),
+                "slip_deg": round(tr.slip_deg, 2),
+            }
+        )
+    # Beans never attempted because the tool was dropped count as failures.
+    for k in range(len(res.transfers), job["n_beans"]):
+        rows.append(
+            {
+                **{key: job[key] for key in ("seed", "tip_friction", "speed", "noise")},
+                "index": k,
+                "bean": "",
+                "success": 0,
+                "lifted": 0,
+                "disturbed": 0,
+                "seconds": "",
+                "tool_mount": job["tool_mount"],
+                "hand": job["hand"],
+                "slip_mm": "",
+                "slip_deg": "",
             }
         )
     return rows
@@ -63,12 +87,15 @@ def main() -> None:
     ap.add_argument("--tip-friction", type=float, nargs="+", default=[scene.SceneConfig.tip_friction])
     ap.add_argument("--speed", type=float, nargs="+", default=[1.0])
     ap.add_argument("--noise", type=float, nargs="+", default=[0.0], help="perception noise std [m]")
+    ap.add_argument("--tool-mount", default="holder", choices=["holder", "fingers"])
+    ap.add_argument("--hand", default="shadow", choices=["shadow", "revo2"])
     ap.add_argument("--workers", type=int, default=os.cpu_count())
     ap.add_argument("--out-dir", type=Path, default=OUTPUT_DIR)
     args = ap.parse_args()
 
     jobs = [
-        {"seed": s, "tip_friction": f, "speed": v, "noise": n, "n_beans": args.n_beans}
+        {"seed": s, "tip_friction": f, "speed": v, "noise": n, "n_beans": args.n_beans, "tool_mount": args.tool_mount,
+         "hand": args.hand}
         for f, v, n, s in itertools.product(
             args.tip_friction, args.speed, args.noise, range(args.seed_offset, args.seed_offset + args.seeds)
         )
@@ -105,12 +132,13 @@ def summarize(rows: list[dict], title: str, subtitle: str = "") -> str:
         sel = [r for r in rows if key(r) == cond]
         k, N = sum(int(r["success"]) for r in sel), len(sel)
         lo, hi = wilson(k, N)
-        sec = np.mean([float(r["seconds"]) for r in sel])
+        done = [float(r["seconds"]) for r in sel if int(r["success"])]  # time of successful transfers
+        sec = float(np.mean(done)) if done else float("nan")
         f_, v, n = cond
         lines.append(
             f"| {f_:g} | {v:g} | {n * 1000:.1f} | {k}/{N} = {k / N:.0%} | {lo:.0%}-{hi:.0%} | "
             f"{np.mean([int(r['lifted']) for r in sel]):.0%} | {np.mean([int(r['disturbed']) for r in sel]):.2f} | "
-            f"{sec:.2f} | {300 / sec * k / N:.0f} |"
+            f"{sec:.2f} | {(300 / sec * k / N) if done else 0:.0f} |"
         )
     return "\n".join(lines) + "\n"
 
