@@ -1,0 +1,18 @@
+[project]
+name = "robothand-sim"
+version = "0.1.0"
+description = "Five-finger hand + tweezers bean transfer simulation (MuJoCo, Shadow Hand)"
+requires-python = ">=3.12"
+dependencies = [
+    "imageio>=2.38.1",
+    "imageio-ffmpeg>=0.6.0",
+    "mujoco>=3.15.0",
+    "numpy>=2.5.3",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/robothand_sim"]
