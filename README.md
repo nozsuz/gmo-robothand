@@ -5,6 +5,10 @@
 
 ![Shadow Hand がピンセットを指だけで持って豆を移す](docs/media/shadow_fingers_x1.gif)
 
+| G1-D 用ハンド（BrainCo Revo 2） | 学習した方策（Diffusion Policy） |
+|---|---|
+| ![Revo 2](docs/media/revo2_holder_x1.gif) | [動画（mp4）](docs/media/learned_policy_holder_x1.mp4) |
+
 ## 現在できること
 
 | | 内容 | 成功率（開発に使っていない配置） |
@@ -197,6 +201,6 @@ uv run python kaggle/remote.py --slug rh-train --gpu --source rh-demos scripts/t
 
 ## ライセンス
 
-- このリポジトリのコード：未定（公開前に決める）
+- このリポジトリのコード：MIT（[LICENSE](LICENSE)）
 - Shadow Hand のモデル（取得スクリプトで入手）：Apache-2.0（Google DeepMind / Shadow Robot Company）
 - BrainCo Revo 2 のモデル（取得スクリプトで入手）：上流でライセンスが未公開のため、このリポジトリには含めていません

@@ -1,8 +1,10 @@
 [project]
 name = "robothand-sim"
 version = "0.1.0"
-description = "Five-finger hand + tweezers bean transfer simulation (MuJoCo, Shadow Hand)"
+description = "Five-finger robot hand (Shadow Hand, BrainCo Revo 2) + tweezers bean transfer simulation in MuJoCo"
 requires-python = ">=3.12"
+license = "MIT"
+readme = "README.md"
 dependencies = [
     "imageio>=2.38.1",
     "imageio-ffmpeg>=0.6.0",
