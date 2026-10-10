@@ -34,7 +34,9 @@ def main() -> None:
     model, info = scene.build(cfg)
     data = mujoco.MjData(model)
     params = replace(controller.TransferParams(), speed=args.speed)
-    title = f"Shadow Hand + tweezers  (scripted, speed x{args.speed:g})"
+    hand_label = {"shadow": "Shadow Hand", "revo2": "BrainCo Revo 2 (G1-D hand)"}[args.hand]
+    held = " held by the fingers" if args.tool_mount == "fingers" else ""
+    title = f"{hand_label} + tweezers{held}  (scripted, speed x{args.speed:g})"
     rec = TwoPanelRecorder(model, title=title) if args.video else None
     done = []
 
